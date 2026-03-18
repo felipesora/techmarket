@@ -1,0 +1,9 @@
+[submodule "techmarket-identity-service"]
+	path = techmarket-identity-service
+	url = https://github.com/felipesora/techmarket-identity-service.git
+[submodule "techmarket-product-service"]
+	path = techmarket-product-service
+	url = https://github.com/felipesora/techmarket-product-service.git
+[submodule "techmarket-order-service"]
+	path = techmarket-order-service
+	url = https://github.com/felipesora/techmarket-order-service.git
