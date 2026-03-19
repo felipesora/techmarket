@@ -10,3 +10,6 @@
 [submodule "techmarket-payment-service"]
 	path = techmarket-payment-service
 	url = https://github.com/felipesora/techmarket-payment-service
+[submodule "techmarket-discovery-service"]
+	path = techmarket-discovery-service
+	url = https://github.com/felipesora/techmarket-discovery-service
