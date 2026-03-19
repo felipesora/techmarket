@@ -13,3 +13,6 @@
 [submodule "techmarket-discovery-service"]
 	path = techmarket-discovery-service
 	url = https://github.com/felipesora/techmarket-discovery-service
+[submodule "techmarket-gateway-service"]
+	path = techmarket-gateway-service
+	url = https://github.com/felipesora/techmarket-gateway-service
