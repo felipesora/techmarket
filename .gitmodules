@@ -7,3 +7,6 @@
 [submodule "techmarket-order-service"]
 	path = techmarket-order-service
 	url = https://github.com/felipesora/techmarket-order-service.git
+[submodule "techmarket-payment-service"]
+	path = techmarket-payment-service
+	url = https://github.com/felipesora/techmarket-payment-service
