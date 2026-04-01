@@ -1,0 +1,194 @@
+services:
+
+  postgres:
+    image: postgres:16
+    container_name: techmarket-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5433:5432"
+    volumes:
+      - techmarket-database_pgdata:/var/lib/postgresql/data
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - techmarket-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+  
+  mongodb:
+    image: mongo:7
+    container_name: techmarket-mongodb
+    restart: always
+    ports:
+      - "27018:27017"
+    volumes:
+      - techmarket-mongodb_data:/data/db
+    networks:
+      - techmarket-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: techmarket-rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+    - techmarket-rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - techmarket-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  discovery-service:
+    build: 
+      context: ./techmarket-discovery-service
+      dockerfile: Dockerfile
+    container_name: techmarket-discovery-service
+    restart: always
+    ports:
+      - "8761:8761"
+    networks:
+      - techmarket-network
+
+  identity-service:
+    build: 
+      context: ./techmarket-identity-service
+      dockerfile: Dockerfile
+    container_name: techmarket-identity-service
+    restart: always
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      JWT_SECRET: minha-senha-super-secreta
+    ports:
+      - "8100:8100"
+    networks:
+      - techmarket-network
+    depends_on:
+      - postgres
+      - discovery-service
+
+  product-service:
+    build: 
+      context: ./techmarket-product-service
+      dockerfile: Dockerfile
+    container_name: techmarket-product-service
+    restart: always
+    environment:
+      MONGODB_HOST: mongodb
+      MONGODB_PORT: 27017
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: admin
+      RABBITMQ_PASSWORD: admin
+      JWT_SECRET: minha-senha-super-secreta
+    ports:
+      - "8101:8101"
+    networks:
+      - techmarket-network
+    depends_on:
+      - mongodb
+      - rabbitmq
+      - discovery-service
+      - identity-service
+
+  order-service:
+    build: 
+      context: ./techmarket-order-service
+      dockerfile: Dockerfile
+    container_name: techmarket-order-service
+    restart: always
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: admin
+      RABBITMQ_PASSWORD: admin
+      JWT_SECRET: minha-senha-super-secreta
+    ports:
+      - "8102:8102"
+    networks:
+      - techmarket-network
+    depends_on:
+      - postgres
+      - rabbitmq
+      - discovery-service
+      - identity-service
+      - product-service
+
+  payment-service:
+    build: 
+      context: ./techmarket-payment-service
+      dockerfile: Dockerfile
+    container_name: techmarket-payment-service
+    restart: always
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: admin
+      RABBITMQ_PASSWORD: admin
+      JWT_SECRET: minha-senha-super-secreta
+    ports:
+      - "8103:8103"
+    networks:
+      - techmarket-network
+    depends_on:
+      - postgres
+      - rabbitmq
+      - discovery-service
+      - identity-service
+      - order-service
+
+  gateway-service:
+    build: 
+      context: ./techmarket-gateway-service
+      dockerfile: Dockerfile
+    container_name: techmarket-gateway-service
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - techmarket-network
+    depends_on:
+      - discovery-service
+      - identity-service
+      - product-service
+      - order-service
+      - payment-service
+
+networks:
+  techmarket-network:
+
+volumes:
+  techmarket-database_pgdata:
+  techmarket-mongodb_data:
+  techmarket-rabbitmq_data:
