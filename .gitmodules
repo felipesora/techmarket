@@ -16,3 +16,6 @@
 [submodule "techmarket-gateway-service"]
 	path = techmarket-gateway-service
 	url = https://github.com/felipesora/techmarket-gateway-service
+[submodule "techmarket-web"]
+	path = techmarket-web
+	url = https://github.com/felipesora/techmarket-web.git
