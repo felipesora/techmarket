@@ -87,8 +87,10 @@ services:
     networks:
       - techmarket-network
     depends_on:
-      - postgres
-      - discovery-service
+      postgres:
+        condition: service_healthy
+      discovery-service:
+        condition: service_started
 
   product-service:
     build: 
@@ -109,10 +111,14 @@ services:
     networks:
       - techmarket-network
     depends_on:
-      - mongodb
-      - rabbitmq
-      - discovery-service
-      - identity-service
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      discovery-service:
+        condition: service_started
+      identity-service:
+        condition: service_started
 
   order-service:
     build: 
@@ -135,11 +141,16 @@ services:
     networks:
       - techmarket-network
     depends_on:
-      - postgres
-      - rabbitmq
-      - discovery-service
-      - identity-service
-      - product-service
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      discovery-service:
+        condition: service_started
+      identity-service:
+        condition: service_started
+      product-service:
+        condition: service_started
 
   payment-service:
     build: 
@@ -162,11 +173,18 @@ services:
     networks:
       - techmarket-network
     depends_on:
-      - postgres
-      - rabbitmq
-      - discovery-service
-      - identity-service
-      - order-service
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      discovery-service:
+        condition: service_started
+      identity-service:
+        condition: service_started
+      product-service:
+        condition: service_started
+      order-service:
+        condition: service_started
 
   gateway-service:
     build: 
@@ -179,11 +197,16 @@ services:
     networks:
       - techmarket-network
     depends_on:
-      - discovery-service
-      - identity-service
-      - product-service
-      - order-service
-      - payment-service
+      discovery-service:
+        condition: service_started
+      identity-service:
+        condition: service_started
+      product-service:
+        condition: service_started
+      order-service:
+        condition: service_started
+      payment-service:
+        condition: service_started
 
 networks:
   techmarket-network:
