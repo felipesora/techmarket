@@ -92,34 +92,6 @@ services:
       discovery-service:
         condition: service_started
 
-  product-service:
-    build: 
-      context: ./techmarket-product-service
-      dockerfile: Dockerfile
-    container_name: techmarket-product-service
-    restart: always
-    environment:
-      MONGODB_HOST: mongodb
-      MONGODB_PORT: 27017
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USERNAME: admin
-      RABBITMQ_PASSWORD: admin
-      JWT_SECRET: minha-senha-super-secreta
-    ports:
-      - "8101:8101"
-    networks:
-      - techmarket-network
-    depends_on:
-      mongodb:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-      discovery-service:
-        condition: service_started
-      identity-service:
-        condition: service_started
-
   order-service:
     build: 
       context: ./techmarket-order-service
@@ -149,7 +121,35 @@ services:
         condition: service_started
       identity-service:
         condition: service_started
-      product-service:
+
+  product-service:
+    build: 
+      context: ./techmarket-product-service
+      dockerfile: Dockerfile
+    container_name: techmarket-product-service
+    restart: always
+    environment:
+      MONGODB_HOST: mongodb
+      MONGODB_PORT: 27017
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: admin
+      RABBITMQ_PASSWORD: admin
+      JWT_SECRET: minha-senha-super-secreta
+    ports:
+      - "8101:8101"
+    networks:
+      - techmarket-network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      discovery-service:
+        condition: service_started
+      identity-service:
+        condition: service_started
+      order-service:
         condition: service_started
 
   payment-service:
@@ -206,6 +206,21 @@ services:
       order-service:
         condition: service_started
       payment-service:
+        condition: service_started
+
+  techmarket-web:
+    build:
+      context: ./techmarket-web
+      dockerfile: Dockerfile
+    container_name: techmarket-web
+    ports:
+    - "4200:80"
+    environment:
+      API_URL: http://localhost:8080
+    networks:
+    - techmarket-network
+    depends_on:
+      gateway-service:
         condition: service_started
 
 networks:
