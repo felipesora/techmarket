@@ -288,7 +288,7 @@ O TechMarket é organizado como um **monorepo com submódulos Git**. Cada servi�
 
 Veja o TechMarket em funcionamento:
 
-> 🎥 **[Assista à demonstração completa aqui](#)**
+> 🎥 **[Assista à demonstração completa aqui](https://youtu.be/RCs4tMAQMho)**
 
 ---
 
